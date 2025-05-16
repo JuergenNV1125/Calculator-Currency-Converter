@@ -200,7 +200,7 @@
     const toSelect = document.getElementById('toCurrency');
 
     try {
-      const res = await fetch('https://api.exchangerate.host/symbols');
+      const res = await fetch('https://api.exchangerate.host/convert?from=USD&to=EUR&amount=100');
       const data = await res.json();
       const symbols = data.symbols;
 
