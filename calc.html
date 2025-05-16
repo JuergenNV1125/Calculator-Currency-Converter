@@ -238,24 +238,24 @@
   }
 
   async function convertCurrency() {
-    const amount = parseFloat(document.getElementById('amount').value);
-    const from = document.getElementById('fromCurrency').value;
-    const to = document.getElementById('toCurrency').value;
-    const resultDiv = document.getElementById('conversionResult');
+  const amount = parseFloat(document.getElementById('amount').value);
+  const from = document.getElementById('fromCurrency').value;
+  const to = document.getElementById('toCurrency').value;
+  const resultDiv = document.getElementById('conversionResult');
 
-    if (isNaN(amount) || amount <= 0) {
-      resultDiv.textContent = "Please enter a valid amount.";
-      return;
-    }
-
-    try {
-      const res = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`);
-      const data = await res.json();
-      resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
-    } catch (error) {
-      resultDiv.textContent = "Conversion failed. Please try again.";
-    }
+  if (isNaN(amount) || amount <= 0) {
+    resultDiv.textContent = "Please enter a valid amount.";
+    return;
   }
+
+  try {
+    const response = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`);
+    const data = await response.json();
+    resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
+  } catch (error) {
+    resultDiv.textContent = "Conversion failed. Please try again.";
+  }
+}
 
 </script>
 
