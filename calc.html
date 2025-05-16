@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scientific Calculator</title>
+  <title>Scientific Calculator + Currency Converter</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -15,13 +15,45 @@
       margin: 0;
     }
 
-    .calculator {
+    .container {
+      width: 360px;
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
       border-radius: 15px;
       padding: 20px;
-      width: 350px;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 10px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: 0.3s;
+      margin: 0 5px;
+    }
+
+    .tabs button.active {
+      background: #00c9ff;
+      color: black;
+    }
+
+    .display, .converter {
+      display: none;
+    }
+
+    .display.active, .converter.active {
+      display: block;
     }
 
     .display {
@@ -32,7 +64,6 @@
       text-align: right;
       border-radius: 10px;
       margin-bottom: 15px;
-      word-wrap: break-word;
       min-height: 60px;
     }
 
@@ -42,7 +73,7 @@
       gap: 10px;
     }
 
-    button {
+    button.calc-btn {
       padding: 15px;
       font-size: 1.1rem;
       border: none;
@@ -53,12 +84,8 @@
       transition: background 0.3s ease;
     }
 
-    button:hover {
+    button.calc-btn:hover {
       background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .wide {
-      grid-column: span 2;
     }
 
     .equal {
@@ -66,64 +93,108 @@
       color: black;
     }
 
-    .equal:hover {
-      background-color: #00b8e6;
+    .converter select, .converter input, .converter button {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .converter select {
+      background: #fff;
+    }
+
+    .result {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 1.2rem;
     }
   </style>
 </head>
 <body>
 
-<div class="calculator">
-  <div class="display" id="display">0</div>
-  <div class="buttons">
-    <!-- Scientific -->
-    <button onclick="appendFunction('Math.sin(')">sin</button>
-    <button onclick="appendFunction('Math.cos(')">cos</button>
-    <button onclick="appendFunction('Math.tan(')">tan</button>
-    <button onclick="appendFunction('Math.sqrt(')">√</button>
-    <button onclick="appendFunction('Math.log10(')">log</button>
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('calc')">Calculator</button>
+    <button class="tab-btn" onclick="showTab('currency')">Currency</button>
+  </div>
 
-    <button onclick="appendFunction('Math.LN10')">ln10</button>
-    <button onclick="appendFunction('Math.E')">e</button>
-    <button onclick="appendFunction('Math.PI')">π</button>
-    <button onclick="clearDisplay()">C</button>
-    <button onclick="backspace()">⌫</button>
+  <!-- Calculator -->
+  <div id="calc" class="display active" contenteditable="false">0</div>
+  <div id="calc-buttons" class="buttons display active">
+    <button class="calc-btn" onclick="appendFunction('Math.sin(')">sin</button>
+    <button class="calc-btn" onclick="appendFunction('Math.cos(')">cos</button>
+    <button class="calc-btn" onclick="appendFunction('Math.tan(')">tan</button>
+    <button class="calc-btn" onclick="appendFunction('Math.sqrt(')">√</button>
+    <button class="calc-btn" onclick="appendFunction('Math.log10(')">log</button>
 
-    <!-- Digits and basic -->
-    <button onclick="appendValue('7')">7</button>
-    <button onclick="appendValue('8')">8</button>
-    <button onclick="appendValue('9')">9</button>
-    <button onclick="appendValue('/')">÷</button>
-    <button onclick="appendValue('**')">^</button>
+    <button class="calc-btn" onclick="appendFunction('Math.LN10')">ln10</button>
+    <button class="calc-btn" onclick="appendFunction('Math.E')">e</button>
+    <button class="calc-btn" onclick="appendFunction('Math.PI')">π</button>
+    <button class="calc-btn" onclick="clearDisplay()">C</button>
+    <button class="calc-btn" onclick="backspace()">⌫</button>
 
-    <button onclick="appendValue('4')">4</button>
-    <button onclick="appendValue('5')">5</button>
-    <button onclick="appendValue('6')">6</button>
-    <button onclick="appendValue('*')">×</button>
-    <button onclick="appendFunction('Math.abs(')">|x|</button>
+    <button class="calc-btn" onclick="appendValue('7')">7</button>
+    <button class="calc-btn" onclick="appendValue('8')">8</button>
+    <button class="calc-btn" onclick="appendValue('9')">9</button>
+    <button class="calc-btn" onclick="appendValue('/')">÷</button>
+    <button class="calc-btn" onclick="appendValue('**')">^</button>
 
-    <button onclick="appendValue('1')">1</button>
-    <button onclick="appendValue('2')">2</button>
-    <button onclick="appendValue('3')">3</button>
-    <button onclick="appendValue('-')">–</button>
-    <button onclick="appendFunction('Math.exp(')">exp</button>
+    <button class="calc-btn" onclick="appendValue('4')">4</button>
+    <button class="calc-btn" onclick="appendValue('5')">5</button>
+    <button class="calc-btn" onclick="appendValue('6')">6</button>
+    <button class="calc-btn" onclick="appendValue('*')">×</button>
+    <button class="calc-btn" onclick="appendFunction('Math.abs(')">|x|</button>
 
-    <button onclick="appendValue('0')">0</button>
-    <button onclick="appendValue('.')">.</button>
-    <button onclick="appendValue('+')">+</button>
-    <button class="wide equal" onclick="calculate()">=</button>
+    <button class="calc-btn" onclick="appendValue('1')">1</button>
+    <button class="calc-btn" onclick="appendValue('2')">2</button>
+    <button class="calc-btn" onclick="appendValue('3')">3</button>
+    <button class="calc-btn" onclick="appendValue('-')">–</button>
+    <button class="calc-btn" onclick="appendFunction('Math.exp(')">exp</button>
+
+    <button class="calc-btn" onclick="appendValue('0')">0</button>
+    <button class="calc-btn" onclick="appendValue('.')">.</button>
+    <button class="calc-btn" onclick="appendValue('+')">+</button>
+    <button class="calc-btn equal" onclick="calculate()" style="grid-column: span 2;">=</button>
+  </div>
+
+  <!-- Currency Converter -->
+  <div id="currency" class="converter">
+    <input type="number" id="amount" placeholder="Enter amount">
+    <select id="fromCurrency"></select>
+    <select id="toCurrency"></select>
+    <button onclick="convertCurrency()">Convert</button>
+    <div class="result" id="conversionResult">Converted amount will appear here.</div>
   </div>
 </div>
 
 <script>
-  const display = document.getElementById('display');
+  // Tabs
+  function showTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.display, .converter').forEach(section => section.classList.remove('active'));
 
-  function appendValue(value) {
-    if (display.innerText === '0') {
-      display.innerText = value;
+    document.getElementById(tab).classList.add('active');
+    if (tab === 'calc') {
+      document.getElementById('calc-buttons').classList.add('active');
+      document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
     } else {
-      display.innerText += value;
+      document.getElementById('currency').classList.add('active');
+      document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
     }
+  }
+
+  // Calculator logic
+  const display = document.getElementById('calc');
+
+  function appendValue(val) {
+    if (display.innerText === '0') display.innerText = val;
+    else display.innerText += val;
   }
 
   function appendFunction(func) {
@@ -135,21 +206,58 @@
   }
 
   function backspace() {
-    if (display.innerText.length > 1) {
-      display.innerText = display.innerText.slice(0, -1);
-    } else {
-      display.innerText = '0';
-    }
+    display.innerText = display.innerText.length > 1
+      ? display.innerText.slice(0, -1)
+      : '0';
   }
 
   function calculate() {
     try {
-      let result = eval(display.innerText);
-      display.innerText = result;
-    } catch (error) {
+      display.innerText = eval(display.innerText);
+    } catch (e) {
       display.innerText = "Error";
     }
   }
+
+  // Currency converter logic
+  async function loadCurrencies() {
+    const res = await fetch('https://api.exchangerate.host/symbols');
+    const data = await res.json();
+    const symbols = data.symbols;
+    const from = document.getElementById('fromCurrency');
+    const to = document.getElementById('toCurrency');
+
+    Object.keys(symbols).forEach(code => {
+      const option1 = document.createElement('option');
+      option1.value = code;
+      option1.text = `${code} - ${symbols[code].description}`;
+      const option2 = option1.cloneNode(true);
+      from.appendChild(option1);
+      to.appendChild(option2);
+    });
+
+    from.value = 'USD';
+    to.value = 'EUR';
+  }
+
+  async function convertCurrency() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const from = document.getElementById('fromCurrency').value;
+    const to = document.getElementById('toCurrency').value;
+    const resultEl = document.getElementById('conversionResult');
+
+    if (!amount || isNaN(amount)) {
+      resultEl.textContent = 'Please enter a valid amount.';
+      return;
+    }
+
+    const res = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`);
+    const data = await res.json();
+    resultEl.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
+  }
+
+  // Initialize
+  loadCurrencies();
 </script>
 
 </body>
