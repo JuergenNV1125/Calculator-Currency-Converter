@@ -69,6 +69,57 @@
     .equal:hover {
       background-color: #00b8e6;
     }
+
+    .converter-container {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  max-width: 400px;
+  margin: auto;
+  color: white;
+}
+
+.converter-container h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.converter-container input,
+.converter-container select,
+.converter-container button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.converter-container input,
+.converter-container select {
+  background: #fff;
+  color: #000;
+}
+
+.converter-container button {
+  background: #00c9ff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.converter-container button:hover {
+  background: #00a9d8;
+}
+
+.result {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  color: #fff;
+}
   </style>
 </head>
 <body>
@@ -113,6 +164,18 @@
     <button onclick="appendValue('+')">+</button>
     <button class="wide equal" onclick="calculate()">=</button>
   </div>
+
+  <div class="converter-container">
+  <h2>Currency Converter 💱</h2>
+  <input type="number" id="amount" placeholder="Enter amount" />
+
+  <select id="fromCurrency"></select>
+  <select id="toCurrency"></select>
+
+  <button onclick="convertCurrency()">Convert</button>
+
+  <div class="result" id="conversionResult">Converted amount will appear here.</div>
+</div>
 </div>
 
 <script>
@@ -150,6 +213,50 @@
       display.innerText = "Error";
     }
   }
+
+
+    async function loadCurrencies() {
+    const res = await fetch('https://api.exchangerate.host/symbols');
+    const data = await res.json();
+    const symbols = data.symbols;
+
+    const fromSelect = document.getElementById('fromCurrency');
+    const toSelect = document.getElementById('toCurrency');
+
+    for (let code in symbols) {
+      const option1 = document.createElement('option');
+      option1.value = code;
+      option1.text = `${code} - ${symbols[code].description}`;
+      fromSelect.appendChild(option1);
+
+      const option2 = option1.cloneNode(true);
+      toSelect.appendChild(option2);
+    }
+
+    fromSelect.value = 'USD';
+    toSelect.value = 'EUR';
+  }
+
+  async function convertCurrency() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const from = document.getElementById('fromCurrency').value;
+    const to = document.getElementById('toCurrency').value;
+    const resultDiv = document.getElementById('conversionResult');
+
+    if (isNaN(amount) || amount <= 0) {
+      resultDiv.textContent = "Please enter a valid amount.";
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`);
+      const data = await res.json();
+      resultDiv.textContent = `${amount} ${from} = ${data.result.toFixed(2)} ${to}`;
+    } catch (error) {
+      resultDiv.textContent = "Conversion failed. Please try again.";
+    }
+  }
+
 </script>
 
 </body>
